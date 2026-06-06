@@ -11,9 +11,12 @@ MAX_PERSON_HISTORY = 30
 
 def _get_conn():
     url = os.getenv("DATABASE_URL", "")
+    if not url:
+        raise RuntimeError("DATABASE_URL environment variable is not set")
     if url.startswith("postgres://"):
         url = url.replace("postgres://", "postgresql://", 1)
-    return psycopg2.connect(url)
+    # Railway requires SSL; sslmode keyword overrides any conflicting value in URL
+    return psycopg2.connect(url, sslmode="require")
 
 
 def init_db():
